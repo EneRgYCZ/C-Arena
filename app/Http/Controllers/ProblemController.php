@@ -4,6 +4,10 @@ namespace App\Http\Controllers;
 
 use App\Models\Problem;
 use Illuminate\Http\Request;
+use Modules\Datatable\Column;
+use Modules\Datatable\SearchInput;
+use Modules\Datatable\Table;
+use Spatie\QueryBuilder\QueryBuilder;
 
 class ProblemController extends Controller
 {
@@ -12,7 +16,25 @@ class ProblemController extends Controller
      */
     public function index()
     {
-        //
+        $problems = QueryBuilder::for(Problem::query())
+            ->allowedSorts('id', 'name')
+            ->allowedFilters(
+                'name',
+                'description',
+            )
+            ->paginate(request('perPage') ?? Table::DEFAULT_PER_PAGE)
+            ->withQueryString();
+
+        return inertia()->render('problems/index', [
+            'problems' => $problems,
+        ])->table(function (Table $table) {
+            $table
+                ->addColumn(new Column('id', 'Id', hidden: true, sortable: true))
+                ->addColumn(new Column('name', 'Name', sortable: true))
+                ->addColumn(new Column('description', 'Description', sortable: true))
+                ->addSearchInput(new SearchInput('name', 'Name', shown: true))
+                ->addSearchInput(new SearchInput('description', 'Description'));
+        });
     }
 
     /**
