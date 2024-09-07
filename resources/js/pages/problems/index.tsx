@@ -41,7 +41,7 @@ export default function Index({
                                                 style={{ marginRight: "8px" }}
                                             >
                                                 <Button size="sm">
-                                                    Vizualizare
+                                                    Solve
                                                 </Button>
                                             </Link>
                                         </td>

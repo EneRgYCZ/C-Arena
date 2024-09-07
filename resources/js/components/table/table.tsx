@@ -338,7 +338,7 @@ export const Table = <T,>({
                                             lineHeight: "32px"
                                         }}
                                     >
-                                        Actiuni
+                                        Actions
                                     </Typography>
                                 </th>
                             )}

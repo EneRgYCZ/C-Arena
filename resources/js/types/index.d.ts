@@ -95,6 +95,8 @@ export interface Problem {
     id: number;
     name: string;
     description: string;
+    input: string;
+    output: string;
     example_input: string;
     example_output: string;
     updated_at: string;

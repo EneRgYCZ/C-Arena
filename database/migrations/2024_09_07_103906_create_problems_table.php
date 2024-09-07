@@ -15,6 +15,8 @@ return new class extends Migration
             $table->id();
             $table->string('name');
             $table->string('description');
+            $table->string('input');
+            $table->string('output');
             $table->string('example_input');
             $table->string('example_output');
             $table->timestamps();
