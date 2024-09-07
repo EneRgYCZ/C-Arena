@@ -58,7 +58,7 @@ class ProblemController extends Controller
      */
     public function show(Problem $problem)
     {
-        //
+        return inertia()->render('problems/show', ['problem' => $problem]);
     }
 
     /**
