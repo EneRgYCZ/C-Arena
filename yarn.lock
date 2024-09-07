@@ -1797,6 +1797,11 @@ fraction.js@^4.3.7:
   resolved "https://registry.npmjs.org/fraction.js/-/fraction.js-4.3.7.tgz"
   integrity sha512-ZsDfxO51wGAXREY55a7la9LScWpwv9RxIrYABrlvOFBlH/ShPnrtsXeuUIfXKKOVicNxQ+o8JTbJvjS4M89yew==
 
+fs-js@^1.0.6:
+  version "1.0.6"
+  resolved "https://registry.npmjs.org/fs-js/-/fs-js-1.0.6.tgz"
+  integrity sha512-Y4MPgFBY/6QIFvGzWD/TGbcgFEOfyRfWFRHpGERjmlqe5aHP2inb1M2BiEzITu6rxjDeEkV5bbwkHTjH6BadEA==
+
 function-bind@^1.1.2:
   version "1.1.2"
   resolved "https://registry.npmjs.org/function-bind/-/function-bind-1.1.2.tgz"

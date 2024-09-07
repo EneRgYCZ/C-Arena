@@ -8,6 +8,7 @@ use Modules\Datatable\Column;
 use Modules\Datatable\SearchInput;
 use Modules\Datatable\Table;
 use Spatie\QueryBuilder\QueryBuilder;
+use Illuminate\Validation\Rules\File;
 
 class ProblemController extends Controller
 {
@@ -83,5 +84,18 @@ class ProblemController extends Controller
     public function destroy(Problem $problem)
     {
         //
+    }
+
+    public function submitSolution(Request $request, Problem $problem)
+    {
+        $validated = $request->validate([
+            'file' => [
+                'required'
+            ],
+        ]);
+
+        $filePath = $validated['file']->store('cpp-problem-submission');
+
+
     }
 }
