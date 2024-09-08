@@ -147,12 +147,7 @@ export default function Show({
                                         route(
                                             "problems.submit-solution",
                                             problem.id
-                                        ),
-                                        {
-                                            onSuccess: () => {
-                                                reset();
-                                            },
-                                        }
+                                        )
                                     );
                                 }}
                             >

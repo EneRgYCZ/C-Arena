@@ -2,7 +2,11 @@
 
 namespace App\Http\Controllers;
 
+use App\Enum\ToastType;
+use App\Jobs\EvaluateSubmission;
 use App\Models\Problem;
+use App\Models\ProblemSubmission;
+use App\Models\Testcase;
 use Illuminate\Http\Request;
 use Modules\Datatable\Column;
 use Modules\Datatable\SearchInput;
@@ -94,8 +98,27 @@ class ProblemController extends Controller
             ],
         ]);
 
-        $filePath = $validated['file']->store('cpp-problem-submission');
+        $uuid = \Ramsey\Uuid\Uuid::uuid4()->toString();
+        $filePath = $validated['file']->storeAs('cpp-problem-submission', $uuid .  '.' . $validated['file']->getClientOriginalExtension());
 
+        $testCases = Testcase::where('problem_id', $problem->id)->get()->toArray();
 
+        if (! $filePath) {
+            $this->toast('There was an errro during the upload of the file', ToastType::Danger);
+
+            return redirect()->back();
+        }
+
+        $submission = ProblemSubmission::create([
+            'problem_id' => $problem->id,
+            'user_id' => auth()->user()->id,
+            'score' => 0,
+        ]);
+
+        dispatch(new EvaluateSubmission($submission, $testCases, $filePath));
+
+        $this->toast('The solution was sent and the solution is tested', ToastType::Success);
+
+        return redirect()->back();
     }
 }

@@ -2,6 +2,8 @@
 
 namespace App\Http\Middleware;
 
+use App\Enum\ToastType;
+use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Inertia\Middleware;
 use Tighten\Ziggy\Ziggy;
@@ -35,6 +37,9 @@ class HandleInertiaRequests extends Middleware
             'auth' => [
                 'user' => $request->user(),
             ],
+            'toast' => $request->session()->has('errors')
+                ? Controller::buildToast('Something went wrong', ToastType::Danger) // default error toast
+                : $request->session()->get('toast'),
             'ziggy' => fn () => [
                 ...(new Ziggy)->toArray(),
                 'location' => $request->url(),

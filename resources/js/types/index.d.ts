@@ -66,13 +66,13 @@ export interface QueryBuilderProps {
     perPage: number;
 }
 
-
 export type PageProps<
     T extends Record<string, unknown> = Record<string, unknown>
 > = T & {
     auth: {
         user: User;
     };
+    toast?: Toast;
     ziggy: Config & { location: string };
 };
 export interface PaginatedResponse<T> {
