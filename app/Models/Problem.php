@@ -9,6 +9,6 @@ class Problem extends Model
 {
     public function testCases(): HasMany
     {
-        return $this->hasMany(TestCase::class);
+        return $this->hasMany(Testcase::class);
     }
 }
