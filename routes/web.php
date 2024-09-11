@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\ProblemController;
 use App\Http\Controllers\ProfileController;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
@@ -18,10 +19,16 @@ Route::get('/dashboard', function () {
     return Inertia::render('Dashboard');
 })->middleware(['auth', 'verified'])->name('dashboard');
 
+
 Route::middleware('auth')->group(function () {
+    Route::resource('problems', ProblemController::class);
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
+
+    Route::group(['prefix' => 'problems', 'as' => 'problems.'], function() {
+        Route::post('submit-solution/{problem}', [ProblemController::class, 'submitSolution'])->name('submit-solution');
+    });
 });
 
 require __DIR__.'/auth.php';
