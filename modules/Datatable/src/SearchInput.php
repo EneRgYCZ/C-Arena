@@ -11,8 +11,7 @@ class SearchInput implements Arrayable
         public readonly string $label,
         public ?string $value = null,
         public bool $shown = false
-    ) {
-    }
+    ) {}
 
     public function toArray(): array
     {

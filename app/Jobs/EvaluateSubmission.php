@@ -18,19 +18,19 @@ class EvaluateSubmission implements ShouldQueue
 
     public function handle(): void
     {
-        $file = storage_path('app/' . $this->filePath);
+        $file = storage_path('app/'.$this->filePath);
 
-        $outFile = str_replace('.cpp', '', basename($file)) . '.out';
-        $errFile = str_replace('.cpp', '', basename($file)) . '.txt';
+        $outFile = str_replace('.cpp', '', basename($file)).'.out';
+        $errFile = str_replace('.cpp', '', basename($file)).'.txt';
 
-        $outFile = storage_path('app/cpp-problem-submission/' . $outFile);
-        $errFile = storage_path('app/cpp-problem-submission/' . $errFile);
+        $outFile = storage_path('app/cpp-problem-submission/'.$outFile);
+        $errFile = storage_path('app/cpp-problem-submission/'.$errFile);
 
-        $descriptorspec = array(
-            0 => array("pipe", "r"),
-            1 => array("pipe", "w"),
-            2 => array("file", $errFile, "a")
-        );
+        $descriptorspec = [
+            0 => ['pipe', 'r'],
+            1 => ['pipe', 'w'],
+            2 => ['file', $errFile, 'a'],
+        ];
 
         $proc = proc_open("g++ {$file} -o {$outFile}", $descriptorspec, $pipes);
         proc_close($proc);
@@ -47,6 +47,7 @@ class EvaluateSubmission implements ShouldQueue
             // Update the error_message with the contents of the error file
             $this->submission->error_message = $errorOutput;
             $this->submission->save();
+
             return;
         } else {
             // Compilation successful, store the resulting binary file
@@ -57,7 +58,7 @@ class EvaluateSubmission implements ShouldQueue
                 Storage::put($inputFile, $fileContent);
 
                 // Execute the binary file with the testcase input
-                $act = storage_path('app/' . $inputFile);
+                $act = storage_path('app/'.$inputFile);
                 $outputOfTestcase = shell_exec("{$outFile} < {$act}");
 
                 if (trim($outputOfTestcase) === trim($testcase['output'])) {
@@ -67,14 +68,15 @@ class EvaluateSubmission implements ShouldQueue
                     // Output doesn't match, do something else
                     $this->submission->score = $totalScore;
                     $this->submission->save();
+
                     return;
                 }
             }
             $this->submission->score = $totalScore;
             $this->submission->save();
+
             return;
         }
 
-        return;
     }
 }

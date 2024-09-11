@@ -60,7 +60,6 @@ const SearchToggler: React.FC<{
             <Menu anchorEl={togglerRef.current} open={open} onClose={() => setOpen(false)}>
                 {searches.map(search => {
                     return (
-                        // eslint-disable-next-line react/prop-types
                         <ListItem key={search.key}>
                             <IndividualToggle search={search} />
                         </ListItem>

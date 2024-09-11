@@ -1,26 +1,18 @@
 import AuthenticatedLayout from "@/layouts/AuthenticatedLayout";
-import {
-    CellRenderer,
-    defaultCellRenderer,
-    Table,
-} from "@/components/table/table";
+import { Table } from "@/components/table/table";
 import { PageProps, PaginatedResponse, Problem } from "@/types";
-import { Head, Link, router } from "@inertiajs/react";
+import { Head, Link } from "@inertiajs/react";
 import React from "react";
 import { Button } from "@mui/joy";
 
 export default function Index({
-    problems,
+    problems
 }: PageProps<{
     problems: PaginatedResponse<Problem>;
 }>) {
     return (
         <AuthenticatedLayout
-            header={
-                <h2 className="font-semibold text-xl text-gray-800 dark:text-gray-200 leading-tight">
-                    Problems
-                </h2>
-            }
+            header={<h2 className="font-semibold text-xl text-gray-800 dark:text-gray-200 leading-tight">Problems</h2>}
         >
             <Head title="Problems" />
 
@@ -30,19 +22,14 @@ export default function Index({
                         <div className="p-6 text-gray-900 dark:text-gray-100">
                             <Table<Problem>
                                 data={problems}
-                                actionRenderer={(problem) => {
+                                actionRenderer={problem => {
                                     return (
                                         <td>
                                             <Link
-                                                href={route(
-                                                    "problems.show",
-                                                    problem.id
-                                                )}
+                                                href={route("problems.show", problem.id)}
                                                 style={{ marginRight: "8px" }}
                                             >
-                                                <Button size="sm">
-                                                    Solve
-                                                </Button>
+                                                <Button size="sm">Solve</Button>
                                             </Link>
                                         </td>
                                     );

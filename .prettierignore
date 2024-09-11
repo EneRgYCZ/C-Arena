@@ -1,0 +1,11 @@
+.vite
+app/
+bootstrap/
+config/
+database/
+node_modules/
+public/
+routes/
+storage/
+tests/
+vendor/

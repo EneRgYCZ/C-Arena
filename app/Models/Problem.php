@@ -2,7 +2,6 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
@@ -10,6 +9,6 @@ class Problem extends Model
 {
     public function testCases(): HasMany
     {
-        return $this->hasMany(TestCase::class);
+        return $this->hasMany(Testcase::class);
     }
 }
