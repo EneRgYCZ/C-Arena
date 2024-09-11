@@ -1,5 +1,5 @@
 import AuthenticatedLayout from "@/layouts/AuthenticatedLayout";
-import { PageProps, Problem } from "@/types";
+import { PageProps, Problem, Submission } from "@/types";
 import { Head, router, useForm } from "@inertiajs/react";
 import React from "react";
 import CodeEditor from "@uiw/react-textarea-code-editor";
@@ -34,8 +34,12 @@ const VisuallyHiddenInput = styled("input")`
 
 export default function Show({
     problem,
+    lastSubmission,
+    bestSubmission,
 }: PageProps<{
     problem: Problem;
+    lastSubmission: Submission;
+    bestSubmission: Submission;
 }>) {
     const [code, setCode] = React.useState<string>();
 
@@ -107,7 +111,62 @@ export default function Show({
                 </div>
             </div>
 
-            <div className="py-12">
+            <div className="py-3">
+                <div className="max-w-7xl mx-auto sm:px-6 lg:px-8">
+                    <div className="bg-white dark:bg-gray-800 overflow-hidden shadow-sm sm:rounded-lg">
+                        <div className="p-6 text-gray-900 dark:text-gray-100">
+                            {lastSubmission !== undefined && (
+                                <div className="p-6 text-gray-900 dark:text-gray-100 border border-gray-300 rounded-lg">
+                                    <div className="flex items-center">
+                                        <div className="font-semibold text-3xl mr-2">
+                                            Last Score:
+                                        </div>
+                                        <p
+                                            style={{
+                                                fontSize: 26,
+                                                color:
+                                                    lastSubmission.score < 30
+                                                        ? "red"
+                                                        : lastSubmission.score <
+                                                          60
+                                                        ? "yellow"
+                                                        : "green",
+                                            }}
+                                        >
+                                            {lastSubmission.score}
+                                        </p>
+                                    </div>
+                                </div>
+                            )}
+                            {bestSubmission !== undefined && (
+                                <div className="p-6 text-gray-900 dark:text-gray-100 border border-gray-300 rounded-lg mt-4">
+                                    <div className="flex items-center">
+                                        <div className="font-semibold text-3xl mr-2">
+                                            Best Score:
+                                        </div>
+                                        <p
+                                            style={{
+                                                fontSize: 26,
+                                                color:
+                                                    bestSubmission.score < 30
+                                                        ? "red"
+                                                        : bestSubmission.score <
+                                                          60
+                                                        ? "yellow"
+                                                        : "green",
+                                            }}
+                                        >
+                                            {bestSubmission.score}
+                                        </p>
+                                    </div>
+                                </div>
+                            )}
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div className="py-6">
                 <div className="max-w-7xl mx-auto sm:px-6 lg:px-8">
                     <div className="bg-white dark:bg-gray-800 overflow-hidden shadow-sm sm:rounded-lg">
                         <div className="p-6 text-gray-900 dark:text-gray-100">
@@ -147,7 +206,13 @@ export default function Show({
                                         route(
                                             "problems.submit-solution",
                                             problem.id
-                                        )
+                                        ),
+                                        {
+                                            onSuccess: () => {
+                                                setData("file", null);
+                                            },
+                                            preserveScroll: true,
+                                        }
                                     );
                                 }}
                             >
@@ -196,7 +261,7 @@ export default function Show({
                                             loading={processing}
                                             fullWidth
                                         >
-                                            Incarca
+                                            Submit
                                         </Button>
                                     </Box>
                                 </div>

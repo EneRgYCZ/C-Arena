@@ -63,7 +63,17 @@ class ProblemController extends Controller
      */
     public function show(Problem $problem)
     {
-        return inertia()->render('problems/show', ['problem' => $problem]);
+        return inertia()->render('problems/show', [
+            'problem' => $problem,
+            'lastSubmission' => ProblemSubmission::where('problem_id', $problem->id)
+                ->where('user_id', auth()->user()->id)
+                ->orderBy('created_at', 'desc')
+                ->first(),
+            'bestSubmission' => ProblemSubmission::where('problem_id', $problem->id)
+                ->where('user_id', auth()->user()->id)
+                ->orderBy('score', 'desc')
+                ->first(),
+        ]);
     }
 
     /**
@@ -104,7 +114,7 @@ class ProblemController extends Controller
         $testCases = Testcase::where('problem_id', $problem->id)->get()->toArray();
 
         if (! $filePath) {
-            $this->toast('There was an errro during the upload of the file', ToastType::Danger);
+            $this->toast('There was an error during the upload of the file', ToastType::Danger);
 
             return redirect()->back();
         }

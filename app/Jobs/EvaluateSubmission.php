@@ -34,7 +34,8 @@ class EvaluateSubmission implements ShouldQueue
 
         if (strpos($output, 'error') !== false) {
             // If there's a compilation error, store an error message in the submission record
-            // $this->submission->update(['compilation_error' => $output]);
+            $this->submission->error_message = $output;
+            $this->submission->save();
             return;
         } else {
             // Compilation successful, store the resulting binary file

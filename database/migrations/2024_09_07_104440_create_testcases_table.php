@@ -17,6 +17,7 @@ return new class extends Migration
             $table->foreignIdFor(Problem::class);
             $table->string('input');
             $table->string('output');
+            $table->timestamps();
         });
     }
 

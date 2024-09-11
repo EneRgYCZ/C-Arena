@@ -102,3 +102,15 @@ export interface Problem {
     updated_at: string;
     created_at: string;
 }
+
+export interface Submission {
+    id: number;
+    problem_id: number;
+    problem: Problem | null;
+    user_id: number;
+    user: User;
+    score: number;
+    error_message: string | null;
+    updated_at: string;
+    created_at: string;
+}

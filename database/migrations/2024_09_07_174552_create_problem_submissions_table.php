@@ -18,6 +18,7 @@ return new class extends Migration
             $table->foreignIdFor(Problem::class);
             $table->foreignIdFor(User::class);
             $table->integer('score');
+            $table->string('error_message')->nullable();
             $table->timestamps();
         });
     }
