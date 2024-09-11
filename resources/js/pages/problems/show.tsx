@@ -49,7 +49,7 @@ export default function Show({
         code: ""
     });
 
-    const CPP_MIMES = ".cpp, text/x-c, file";
+    const CPP_MIMES = ".cpp, text/x-c";
 
     return (
         <AuthenticatedLayout
