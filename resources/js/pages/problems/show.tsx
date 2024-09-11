@@ -13,7 +13,7 @@ export function saveStateToFile(
     const fs = require("fs");
 
     return new Promise((resolve, reject) => {
-        fs.writeFile(`${state}.cpp`, state, (err: unknown) => {
+        fs.writeFile(`${state}.${extension}`, state, (err: unknown) => {
             if (err) reject(err);
             else resolve(err);
         });
@@ -41,26 +41,15 @@ export default function Show({
     lastSubmission: Submission;
     bestSubmission: Submission;
 }>) {
-    const [code, setCode] = React.useState<string>();
-
     const { data, setData, errors, processing, post, reset } = useForm<{
         file: File | null;
+        code: string;
     }>({
         file: null,
+        code: ""
     });
 
-    function TextWithLineBreaks(props) {
-        const textWithBreaks = props.text.split("\n").map((text, index) => (
-            <React.Fragment key={index}>
-                {text}
-                <br />
-            </React.Fragment>
-        ));
-
-        return <div>{textWithBreaks}</div>;
-    }
-
-    const CPP_MIMES = ".cpp";
+    const CPP_MIMES = ".cpp, text/x-c, file";
 
     return (
         <AuthenticatedLayout
@@ -70,7 +59,12 @@ export default function Show({
                         <div className="bg-blue-500 text-white font-bold py-1 px-2 rounded mr-2">
                             #{problem.id}
                         </div>
-                        <div>{problem.name}</div>
+                        <div className="flex items-center">
+                            {problem.name}
+                            {bestSubmission && bestSubmission.score === 100 && (
+                                <span className="ml-2 text-green-500">✔️</span>
+                            )}
+                        </div>
                     </div>
                 </h2>
             }
@@ -126,7 +120,7 @@ export default function Show({
                 <div className="max-w-7xl mx-auto sm:px-6 lg:px-8">
                     <div className="bg-white dark:bg-gray-800 overflow-hidden shadow-sm sm:rounded-lg">
                         <div className="p-6 text-gray-900 dark:text-gray-100">
-                            {lastSubmission !== undefined && (
+                            {lastSubmission !== null && (
                                 <div className="p-6 text-gray-900 dark:text-gray-100 border border-gray-300 rounded-lg">
                                     <div className="flex items-center">
                                         <div className="font-semibold text-3xl mr-2">
@@ -167,18 +161,22 @@ export default function Show({
                                             color: "red",
                                         }}
                                     >
-                                        {lastSubmission.error_message ? (
-                                            lastSubmission.error_message.split('\n').map((text, index) => (
-                                                <React.Fragment key={index}>
-                                                    {text}
-                                                    <br/>
-                                                </React.Fragment>
-                                            ))
-                                        ) : null}
+                                        {lastSubmission.error_message
+                                            ? lastSubmission.error_message
+                                                  .split("\n")
+                                                  .map((text, index) => (
+                                                      <React.Fragment
+                                                          key={index}
+                                                      >
+                                                          {text}
+                                                          <br />
+                                                      </React.Fragment>
+                                                  ))
+                                            : null}
                                     </div>
                                 </div>
                             )}
-                            {bestSubmission !== undefined && (
+                            {bestSubmission !== null && (
                                 <div className="p-6 text-gray-900 dark:text-gray-100 border border-gray-300 rounded-lg mt-4">
                                     <div className="flex items-center">
                                         <div className="font-semibold text-3xl mr-2">
@@ -217,7 +215,7 @@ export default function Show({
                         <div className="p-6 text-gray-900 dark:text-gray-100">
                             <div style={{ height: 500, overflow: "auto" }}>
                                 <CodeEditor
-                                    value={code}
+                                    value={data.code}
                                     language="cpp"
                                     data-color-mode="dark"
                                     placeholder="Please enter C++ code."
@@ -228,7 +226,12 @@ export default function Show({
                                                 string | undefined
                                             >;
                                         };
-                                    }) => setCode(evn.target.value)}
+                                    }) =>
+                                        setData(
+                                            "code",
+                                            evn.target.value as string
+                                        )
+                                    }
                                     style={{
                                         fontSize: 17,
                                         fontFamily:
@@ -236,6 +239,11 @@ export default function Show({
                                         height: 3000,
                                     }}
                                 />
+                                {errors.code && (
+                                    <Typography color="danger" variant="plain">
+                                        {errors.code}
+                                    </Typography>
+                                )}
                             </div>
                         </div>
                         <div className="p-6 text-gray-900 dark:text-gray-100">
@@ -250,6 +258,7 @@ export default function Show({
                                         {
                                             onSuccess: () => {
                                                 setData("file", null);
+                                                setData("code", "");
                                             },
                                             preserveScroll: true,
                                         }

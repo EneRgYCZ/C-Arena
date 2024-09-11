@@ -8,6 +8,7 @@ use App\Models\Problem;
 use App\Models\ProblemSubmission;
 use App\Models\Testcase;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 use Modules\Datatable\Column;
 use Modules\Datatable\SearchInput;
 use Modules\Datatable\Table;
@@ -104,12 +105,24 @@ class ProblemController extends Controller
     {
         $validated = $request->validate([
             'file' => [
-                'required'
+                'prohibited_unless:code,null',
+                'required_without:code',
+            ],
+            'code' => [
+                'prohibited_unless:file,null,',
+                'required_without:file',
+                'string',
             ],
         ]);
 
-        $uuid = \Ramsey\Uuid\Uuid::uuid4()->toString();
-        $filePath = $validated['file']->storeAs('cpp-problem-submission', $uuid .  '.' . $validated['file']->getClientOriginalExtension());
+        if ($validated['code']) {
+            $uuid = \Ramsey\Uuid\Uuid::uuid4()->toString();
+            $filePath = 'cpp-problem-submission/' . $uuid . '.cpp';
+            Storage::put($filePath, $validated['code']);
+        } else {
+            $uuid = \Ramsey\Uuid\Uuid::uuid4()->toString();
+            $filePath = $validated['file']->storeAs('cpp-problem-submission', $uuid . '.' . $validated['file']->getClientOriginalExtension());
+        }
 
         $testCases = Testcase::where('problem_id', $problem->id)->get()->toArray();
 
