@@ -13,7 +13,6 @@ use Modules\Datatable\Column;
 use Modules\Datatable\SearchInput;
 use Modules\Datatable\Table;
 use Spatie\QueryBuilder\QueryBuilder;
-use Illuminate\Validation\Rules\File;
 
 class ProblemController extends Controller
 {
@@ -117,11 +116,11 @@ class ProblemController extends Controller
 
         if ($validated['code']) {
             $uuid = \Ramsey\Uuid\Uuid::uuid4()->toString();
-            $filePath = 'cpp-problem-submission/' . $uuid . '.cpp';
+            $filePath = 'cpp-problem-submission/'.$uuid.'.cpp';
             Storage::put($filePath, $validated['code']);
         } else {
             $uuid = \Ramsey\Uuid\Uuid::uuid4()->toString();
-            $filePath = $validated['file']->storeAs('cpp-problem-submission', $uuid . '.' . $validated['file']->getClientOriginalExtension());
+            $filePath = $validated['file']->storeAs('cpp-problem-submission', $uuid.'.'.$validated['file']->getClientOriginalExtension());
         }
 
         $testCases = Testcase::where('problem_id', $problem->id)->get()->toArray();

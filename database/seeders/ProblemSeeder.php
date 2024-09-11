@@ -4,7 +4,6 @@ namespace Database\Seeders;
 
 use App\Models\Problem;
 use App\Models\Testcase;
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 
 class ProblemSeeder extends Seeder
@@ -20,13 +19,13 @@ class ProblemSeeder extends Seeder
             'input' => 'Programul citește de la tastatură două numere naturale.',
             'output' => 'Programul afișează pe ecran valoarea cerută.',
             'example_input' => '125 1250',
-            'example_output' => '125'
+            'example_output' => '125',
         ]);
 
         Testcase::create([
             'problem_id' => 1,
             'input' => '125 1250',
-            'output' => '125'
+            'output' => '125',
         ]);
     }
 }

@@ -14,8 +14,7 @@ class Column implements Arrayable
         public readonly bool $sortable = false,
         public bool|string $sorted = false,
         public ?int $sortNumber = null
-    ) {
-    }
+    ) {}
 
     public function toArray(): array
     {
