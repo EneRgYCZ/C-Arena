@@ -119,22 +119,33 @@ export default function Show({
                                 <div className="p-6 text-gray-900 dark:text-gray-100 border border-gray-300 rounded-lg">
                                     <div className="flex items-center">
                                         <div className="font-semibold text-3xl mr-2">
-                                            Last Score:
+                                            Last Submission:
                                         </div>
-                                        <p
-                                            style={{
-                                                fontSize: 26,
-                                                color:
-                                                    lastSubmission.score < 30
-                                                        ? "red"
-                                                        : lastSubmission.score <
-                                                          60
-                                                        ? "yellow"
-                                                        : "green",
-                                            }}
-                                        >
-                                            {lastSubmission.score}
-                                        </p>
+                                        {lastSubmission.error_message ? (
+                                            <p
+                                                style={{
+                                                    fontSize: 16,
+                                                    color: "red",
+                                                }}
+                                            >
+                                                {lastSubmission.error_message}
+                                            </p>
+                                        ) : (
+                                            <p
+                                                style={{
+                                                    fontSize: 26,
+                                                    color:
+                                                        lastSubmission.score < 30
+                                                            ? "red"
+                                                            : lastSubmission.score <
+                                                              60
+                                                            ? "yellow"
+                                                            : "green",
+                                                }}
+                                            >
+                                                {lastSubmission.score}
+                                            </p>
+                                        )}
                                     </div>
                                 </div>
                             )}
@@ -142,7 +153,7 @@ export default function Show({
                                 <div className="p-6 text-gray-900 dark:text-gray-100 border border-gray-300 rounded-lg mt-4">
                                     <div className="flex items-center">
                                         <div className="font-semibold text-3xl mr-2">
-                                            Best Score:
+                                            Best Submission:
                                         </div>
                                         <p
                                             style={{
