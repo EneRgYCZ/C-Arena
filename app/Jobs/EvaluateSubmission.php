@@ -18,23 +18,34 @@ class EvaluateSubmission implements ShouldQueue
 
     public function handle(): void
     {
-
         $file = storage_path('app/' . $this->filePath);
 
         $outFile = str_replace('.cpp', '', basename($file)) . '.out';
+        $errFile = str_replace('.cpp', '', basename($file)) . '.txt';
 
         $outFile = storage_path('app/cpp-problem-submission/' . $outFile);
+        $errFile = storage_path('app/cpp-problem-submission/' . $errFile);
 
-        $output = shell_exec("g++ {$file} -o {$outFile}");
+        $descriptorspec = array(
+            0 => array("pipe", "r"),
+            1 => array("pipe", "w"),
+            2 => array("file", $errFile, "a")
+        );
+
+        $proc = proc_open("g++ {$file} -o {$outFile}", $descriptorspec, $pipes);
+        proc_close($proc);
 
         $numberOfTestcases = count($this->testcases);
         $pointsPerCase = 100 / $numberOfTestcases;
 
         $totalScore = 0;
 
-        if (strpos($output, 'error') !== false) {
-            // If there's a compilation error, store an error message in the submission record
-            $this->submission->error_message = $output;
+        // Check if the error output file exists
+        if (file_exists($errFile) && filesize($errFile) > 0) {
+            // Read the contents of the error file
+            $errorOutput = file_get_contents($errFile);
+            // Update the error_message with the contents of the error file
+            $this->submission->error_message = $errorOutput;
             $this->submission->save();
             return;
         } else {

@@ -49,6 +49,17 @@ export default function Show({
         file: null,
     });
 
+    function TextWithLineBreaks(props) {
+        const textWithBreaks = props.text.split("\n").map((text, index) => (
+            <React.Fragment key={index}>
+                {text}
+                <br />
+            </React.Fragment>
+        ));
+
+        return <div>{textWithBreaks}</div>;
+    }
+
     const CPP_MIMES = ".cpp";
 
     return (
@@ -122,20 +133,23 @@ export default function Show({
                                             Last Submission:
                                         </div>
                                         {lastSubmission.error_message ? (
-                                            <p
-                                                style={{
-                                                    fontSize: 16,
-                                                    color: "red",
-                                                }}
-                                            >
-                                                {lastSubmission.error_message}
-                                            </p>
+                                            <div>
+                                                <p
+                                                    style={{
+                                                        fontSize: 26,
+                                                        color: "red",
+                                                    }}
+                                                >
+                                                    Compilation error
+                                                </p>
+                                            </div>
                                         ) : (
                                             <p
                                                 style={{
                                                     fontSize: 26,
                                                     color:
-                                                        lastSubmission.score < 30
+                                                        lastSubmission.score <
+                                                        30
                                                             ? "red"
                                                             : lastSubmission.score <
                                                               60
@@ -146,6 +160,21 @@ export default function Show({
                                                 {lastSubmission.score}
                                             </p>
                                         )}
+                                    </div>
+                                    <div
+                                        style={{
+                                            fontSize: 16,
+                                            color: "red",
+                                        }}
+                                    >
+                                        {lastSubmission.error_message ? (
+                                            lastSubmission.error_message.split('\n').map((text, index) => (
+                                                <React.Fragment key={index}>
+                                                    {text}
+                                                    <br/>
+                                                </React.Fragment>
+                                            ))
+                                        ) : null}
                                     </div>
                                 </div>
                             )}
