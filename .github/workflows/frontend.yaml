@@ -53,8 +53,11 @@ jobs:
                   cache: yarn
                   cache-dependency-path: yarn.lock
 
-            - name: Install Dependencies
+            - name: Install Fontend Dependencies
               run: yarn
+
+            - name: Install Backend Dependencies
+              run: composer install
 
             - name: Frontend Type
               run: yarn run type:test
