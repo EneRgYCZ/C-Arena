@@ -1,7 +1,7 @@
 import { AxiosInstance } from "axios";
 import Echo from "laravel-echo";
 import Pusher from "pusher-js";
-import ziggyRoute, { Config as ZiggyConfig } from "ziggy-js";
+import { route as ziggyRoute } from "ziggy-js";
 
 declare global {
     interface Window {
@@ -11,5 +11,4 @@ declare global {
     }
 
     let route: typeof ziggyRoute;
-    const Ziggy: ZiggyConfig;
 }

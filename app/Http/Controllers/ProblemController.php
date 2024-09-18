@@ -136,7 +136,7 @@ class ProblemController extends Controller
             'score' => 0,
         ]);
 
-        dispatch(new EvaluateSubmission($submission, $testCases, $filePath));
+        dispatch(new EvaluateSubmission($submission, $testCases, $filePath, Auth::user()));
 
         $this->toast('The solution was sent and the solution is tested', ToastType::Success);
 

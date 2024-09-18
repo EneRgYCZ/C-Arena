@@ -2,8 +2,10 @@
 
 namespace App\Jobs;
 
+use App\Events\EndSubmissionEvent;
 use App\Events\TestCaseResultUpdated;
 use App\Models\ProblemSubmission;
+use App\Models\User;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Foundation\Queue\Queueable;
@@ -15,7 +17,7 @@ class EvaluateSubmission implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
-    public function __construct(public ProblemSubmission $submission, public array $testcases, public string $filePath) {}
+    public function __construct(public ProblemSubmission $submission, public array $testcases, public string $filePath, public User $user) {}
 
     public function handle(): void
     {
@@ -40,7 +42,6 @@ class EvaluateSubmission implements ShouldQueue
         $pointsPerCase = 100 / $numberOfTestcases;
 
         $totalScore = 0;
-
         // Check if the error output file exists
         if (file_exists($errFile) && filesize($errFile) > 0) {
             // Read the contents of the error file
@@ -63,24 +64,42 @@ class EvaluateSubmission implements ShouldQueue
                 $outputOfTestcase = shell_exec("{$outFile} < {$act}");
 
                 if (trim($outputOfTestcase) === trim($testcase['output'])) {
-                    // Output matches, do something
+                    // Output matches, update total score
                     $totalScore += $pointsPerCase;
-                    event(new TestCaseResultUpdated($pointsPerCase));
+
+                    // Broadcast updated test case result
+                    event(new TestCaseResultUpdated($pointsPerCase, $this->submission->user_id));
                 } else {
-                    // Output doesn't match, do something else
+                    // Output doesn't match, stop and save results
                     $this->submission->score = $totalScore;
                     $this->submission->save();
 
-                    event(new TestCaseResultUpdated($pointsPerCase));
+                    // Get the best submission for the user
+                    $bestSubmission = ProblemSubmission::where('problem_id', $this->submission->problem_id)
+                        ->where('user_id', $this->user->id)
+                        ->orderBy('score', 'desc')
+                        ->first();
 
-                    return;
+                    // Broadcast test case failure and end submission
+                    event(new TestCaseResultUpdated(0, $this->submission->user_id));
+                    event(new EndSubmissionEvent($bestSubmission, $this->submission, $this->submission->user_id));
+
+                    return; // Stop further test case execution
                 }
             }
+
+            // All test cases passed, save final score
             $this->submission->score = $totalScore;
             $this->submission->save();
 
-            return;
-        }
+            // Get the best submission for the user
+            $bestSubmission = ProblemSubmission::where('problem_id', $this->submission->problem_id)
+                ->where('user_id', $this->submission->user_id)
+                ->orderBy('score', 'desc')
+                ->first();
 
+            // Broadcast end of submission after all test cases
+            event(new EndSubmissionEvent($bestSubmission, $this->submission, $this->submission->user_id));
+        }
     }
 }
