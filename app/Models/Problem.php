@@ -11,4 +11,9 @@ class Problem extends Model
     {
         return $this->hasMany(Testcase::class);
     }
+
+    public function problemSubmissins(): HasMany
+    {
+        return $this->hasMany(ProblemSubmission::class);
+    }
 }

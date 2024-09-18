@@ -2,8 +2,10 @@
 
 namespace App\Jobs;
 
+use App\Events\EndSubmissionEvent;
 use App\Events\TestCaseResultUpdated;
 use App\Models\ProblemSubmission;
+use App\Models\User;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Foundation\Queue\Queueable;
@@ -15,7 +17,7 @@ class EvaluateSubmission implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
-    public function __construct(public ProblemSubmission $submission, public array $testcases, public string $filePath) {}
+    public function __construct(public ProblemSubmission $submission, public array $testcases, public string $filePath, public User $user) {}
 
     public function handle(): void
     {
@@ -40,7 +42,6 @@ class EvaluateSubmission implements ShouldQueue
         $pointsPerCase = 100 / $numberOfTestcases;
 
         $totalScore = 0;
-
         // Check if the error output file exists
         if (file_exists($errFile) && filesize($errFile) > 0) {
             // Read the contents of the error file
@@ -65,22 +66,36 @@ class EvaluateSubmission implements ShouldQueue
                 if (trim($outputOfTestcase) === trim($testcase['output'])) {
                     // Output matches, do something
                     $totalScore += $pointsPerCase;
+
                     event(new TestCaseResultUpdated($pointsPerCase));
                 } else {
                     // Output doesn't match, do something else
                     $this->submission->score = $totalScore;
                     $this->submission->save();
 
-                    event(new TestCaseResultUpdated($pointsPerCase));
+                    $bestSubmission = ProblemSubmission::where('problem_id', $this->submission->problem_id)
+                        ->where('user_id', $this->user->id)
+                        ->orderBy('score', 'desc')
+                        ->first();
+
+                    event(new TestCaseResultUpdated(0));
+                    event(new EndSubmissionEvent($bestSubmission, $this->submission));
 
                     return;
                 }
             }
+
             $this->submission->score = $totalScore;
             $this->submission->save();
 
+            $bestSubmission = ProblemSubmission::where('problem_id', $this->submission->problem_id)
+                ->where('user_id', $this->user->id)
+                ->orderBy('score', 'desc')
+                ->first();
+
+            event(new EndSubmissionEvent($bestSubmission, $this->submission));
+
             return;
         }
-
     }
 }
