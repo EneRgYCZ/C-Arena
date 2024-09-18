@@ -3,7 +3,7 @@
 namespace App\Events;
 
 use App\Models\ProblemSubmission;
-use Illuminate\Broadcasting\Channel;
+use Illuminate\Broadcasting\PrivateChannel;
 use Illuminate\Contracts\Broadcasting\ShouldBroadcast;
 
 class EndSubmissionEvent implements ShouldBroadcast
@@ -12,16 +12,19 @@ class EndSubmissionEvent implements ShouldBroadcast
 
     public ProblemSubmission $lastSubmission;
 
-    public function __construct(ProblemSubmission $bestSubmission, ProblemSubmission $lastSubmission)
+    public int $userId;
+
+    public function __construct(ProblemSubmission $bestSubmission, ProblemSubmission $lastSubmission, int $userId)
     {
         $this->lastSubmission = $lastSubmission;
         $this->bestSubmission = $bestSubmission;
+        $this->userId = $userId;
     }
 
     public function broadcastOn(): array
     {
         return [
-            new Channel('end-of-submission'),
+            new PrivateChannel('end-of-submission.'.$this->userId),
         ];
     }
 }

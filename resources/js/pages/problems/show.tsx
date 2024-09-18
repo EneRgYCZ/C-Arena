@@ -21,7 +21,8 @@ const VisuallyHiddenInput = styled("input")`
 export default function Show({
     problem,
     lastSubmission,
-    bestSubmission
+    bestSubmission,
+    auth
 }: PageProps<{
     problem: Problem;
     lastSubmission: Submission;
@@ -42,8 +43,14 @@ export default function Show({
     const [loading, setLoading] = React.useState<boolean>(false);
 
     React.useEffect(() => {
-        const channel = window.Echo.channel("test-case-results");
-        const eosChannel = window.Echo.channel("end-of-submission");
+        const userId = auth.user.id;
+
+        const channel = window.Echo.private(`test-case-results.${userId}`);
+        const eosChannel = window.Echo.private(`end-of-submission.${userId}`);
+
+        // Remove previous listeners if any
+        channel.stopListening("TestCaseResultUpdated");
+        eosChannel.stopListening("EndSubmissionEvent");
 
         channel.listen("TestCaseResultUpdated", (event: { pointsPerCase: number }) => {
             setTestCaseResults(prevResults => [...prevResults, event.pointsPerCase]);
@@ -60,7 +67,8 @@ export default function Show({
         );
 
         return () => {
-            channel.stopListening("TestCaseResultUpdated");
+            channel.stopListening(`test-case-results.${userId}`);
+            eosChannel.stopListening(`end-of-submission.${userId}`);
         };
     }, []);
 
@@ -150,7 +158,7 @@ export default function Show({
                                                               : "green"
                                                 }}
                                             >
-                                                {lastSubmissionState.score}
+                                                {Math.ceil(lastSubmissionState.score)}
                                             </p>
                                         )}
                                     </div>
@@ -186,7 +194,7 @@ export default function Show({
                                                           : "green"
                                             }}
                                         >
-                                            {bestSubmissionState.score}
+                                            {Math.floor(bestSubmissionState.score)}
                                         </p>
                                     </div>
                                 </div>
@@ -228,14 +236,58 @@ export default function Show({
                             )}
                             <ul>
                                 {testCaseResults.map((points, index) => (
-                                    <li key={index}>
-                                        Test case {index + 1}: {points} points
+                                    <li key={index} style={{ marginBottom: "10px" }}>
+                                        <div
+                                            style={{
+                                                border: `2px solid ${points > 0 ? "green" : "red"}`,
+                                                borderRadius: "5px",
+                                                padding: "10px",
+                                                backgroundColor: points > 0 ? "#d4edda" : "#f8d7da",
+                                                color: points > 0 ? "green" : "red"
+                                            }}
+                                        >
+                                            Test case {index + 1}: {Math.floor(points)} Points
+                                        </div>
                                     </li>
                                 ))}
                             </ul>
-                            <ul>
-                                <li>Total score: {testCaseResults.reduce((acc, points) => acc + points, 0)}</li>
-                            </ul>
+                            {testCaseResults.length > 0 && (
+                                <ul>
+                                    <li>
+                                        <div
+                                            style={{
+                                                border: `2px solid ${
+                                                    testCaseResults.reduce((acc, points) => acc + points, 0) > 60
+                                                        ? "green"
+                                                        : testCaseResults.reduce((acc, points) => acc + points, 0) >= 30
+                                                          ? "yellow"
+                                                          : "red"
+                                                }`,
+                                                borderRadius: "5px",
+                                                padding: "10px",
+                                                backgroundColor: `${
+                                                    testCaseResults.reduce((acc, points) => acc + points, 0) > 60
+                                                        ? "#d4edda"
+                                                        : testCaseResults.reduce((acc, points) => acc + points, 0) >= 30
+                                                          ? "#fff3cd"
+                                                          : "#f8d7da"
+                                                }`,
+                                                color: `${
+                                                    testCaseResults.reduce((acc, points) => acc + points, 0) > 60
+                                                        ? "green"
+                                                        : testCaseResults.reduce((acc, points) => acc + points, 0) >= 30
+                                                          ? "yellow"
+                                                          : "red"
+                                                }`
+                                            }}
+                                        >
+                                            Total score:{" "}
+                                            {testCaseResults.reduce((acc, points) => Math.floor(acc + points), 0)}{" "}
+                                            {"Points"}
+                                        </div>
+                                    </li>
+                                </ul>
+                            )}
                         </div>
                     </div>
                 </div>

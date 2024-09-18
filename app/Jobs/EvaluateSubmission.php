@@ -64,38 +64,42 @@ class EvaluateSubmission implements ShouldQueue
                 $outputOfTestcase = shell_exec("{$outFile} < {$act}");
 
                 if (trim($outputOfTestcase) === trim($testcase['output'])) {
-                    // Output matches, do something
+                    // Output matches, update total score
                     $totalScore += $pointsPerCase;
 
-                    event(new TestCaseResultUpdated($pointsPerCase));
+                    // Broadcast updated test case result
+                    event(new TestCaseResultUpdated($pointsPerCase, $this->submission->user_id));
                 } else {
-                    // Output doesn't match, do something else
+                    // Output doesn't match, stop and save results
                     $this->submission->score = $totalScore;
                     $this->submission->save();
 
+                    // Get the best submission for the user
                     $bestSubmission = ProblemSubmission::where('problem_id', $this->submission->problem_id)
                         ->where('user_id', $this->user->id)
                         ->orderBy('score', 'desc')
                         ->first();
 
-                    event(new TestCaseResultUpdated(0));
-                    event(new EndSubmissionEvent($bestSubmission, $this->submission));
+                    // Broadcast test case failure and end submission
+                    event(new TestCaseResultUpdated(0, $this->submission->user_id));
+                    event(new EndSubmissionEvent($bestSubmission, $this->submission, $this->submission->user_id));
 
-                    return;
+                    return; // Stop further test case execution
                 }
             }
 
+            // All test cases passed, save final score
             $this->submission->score = $totalScore;
             $this->submission->save();
 
+            // Get the best submission for the user
             $bestSubmission = ProblemSubmission::where('problem_id', $this->submission->problem_id)
-                ->where('user_id', $this->user->id)
+                ->where('user_id', $this->submission->user_id)
                 ->orderBy('score', 'desc')
                 ->first();
 
-            event(new EndSubmissionEvent($bestSubmission, $this->submission));
-
-            return;
+            // Broadcast end of submission after all test cases
+            event(new EndSubmissionEvent($bestSubmission, $this->submission, $this->submission->user_id));
         }
     }
 }

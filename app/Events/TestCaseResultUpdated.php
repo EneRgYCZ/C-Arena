@@ -2,20 +2,23 @@
 
 namespace App\Events;
 
-use Illuminate\Broadcasting\Channel;
+use Illuminate\Broadcasting\PrivateChannel;
 use Illuminate\Contracts\Broadcasting\ShouldBroadcast;
 
 class TestCaseResultUpdated implements ShouldBroadcast
 {
     public int|float $pointsPerCase;
 
-    public function __construct($pointsPerCase)
+    public int $userId;
+
+    public function __construct(int|float $pointsPerCase, int $userId)
     {
         $this->pointsPerCase = $pointsPerCase;
+        $this->userId = $userId;
     }
 
     public function broadcastOn()
     {
-        return new Channel('test-case-results');
+        return new PrivateChannel('test-case-results.'.$this->userId);
     }
 }
