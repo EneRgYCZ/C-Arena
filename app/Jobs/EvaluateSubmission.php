@@ -2,6 +2,7 @@
 
 namespace App\Jobs;
 
+use App\Events\TestCaseResultUpdated;
 use App\Models\ProblemSubmission;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
@@ -64,10 +65,13 @@ class EvaluateSubmission implements ShouldQueue
                 if (trim($outputOfTestcase) === trim($testcase['output'])) {
                     // Output matches, do something
                     $totalScore += $pointsPerCase;
+                    event(new TestCaseResultUpdated($pointsPerCase));
                 } else {
                     // Output doesn't match, do something else
                     $this->submission->score = $totalScore;
                     $this->submission->save();
+
+                    event(new TestCaseResultUpdated($pointsPerCase));
 
                     return;
                 }

@@ -35,6 +35,20 @@ export default function Show({
         code: ""
     });
 
+    const [testCaseResults, setTestCaseResults] = React.useState<number[]>([]);
+
+    React.useEffect(() => {
+        const channel = window.Echo.channel("test-case-results");
+
+        channel.listen("TestCaseResultUpdated", (event: { pointsPerCase: number }) => {
+            setTestCaseResults(prevResults => [...prevResults, event.pointsPerCase]);
+        });
+
+        return () => {
+            channel.stopListening("TestCaseResultUpdated");
+        };
+    }, []);
+
     const CPP_MIMES = ".cpp, text/x-c";
 
     return (
@@ -162,6 +176,26 @@ export default function Show({
                                     </div>
                                 </div>
                             )}
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div className="py-6">
+                <div className="max-w-7xl mx-auto sm:px-6 lg:px-8">
+                    <div className="bg-white dark:bg-gray-800 overflow-hidden shadow-sm sm:rounded-lg">
+                        <div className="p-6 text-gray-900 dark:text-gray-100">
+                            <h2 className="font-semibold text-3xl">Test Cases:</h2>
+                            <ul>
+                                {testCaseResults.map((points, index) => (
+                                    <li key={index}>
+                                        Test case {index + 1}: {points} points
+                                    </li>
+                                ))}
+                            </ul>
+                            <ul>
+                                <li>Total score: {testCaseResults.reduce((acc, points) => acc + points, 0)}</li>
+                            </ul>
                         </div>
                     </div>
                 </div>

@@ -8,6 +8,7 @@ use App\Models\Problem;
 use App\Models\ProblemSubmission;
 use App\Models\Testcase;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
 use Modules\Datatable\Column;
 use Modules\Datatable\SearchInput;
@@ -66,11 +67,11 @@ class ProblemController extends Controller
         return inertia()->render('problems/show', [
             'problem' => $problem,
             'lastSubmission' => ProblemSubmission::where('problem_id', $problem->id)
-                ->where('user_id', auth()->user()->id)
+                ->where('user_id', Auth::user()->id)
                 ->orderBy('created_at', 'desc')
                 ->first(),
             'bestSubmission' => ProblemSubmission::where('problem_id', $problem->id)
-                ->where('user_id', auth()->user()->id)
+                ->where('user_id', Auth::user()->id)
                 ->orderBy('score', 'desc')
                 ->first(),
         ]);
@@ -104,12 +105,10 @@ class ProblemController extends Controller
     {
         $validated = $request->validate([
             'file' => [
-                'prohibited_unless:code,null',
-                'required_without:code',
+                'nullable',
             ],
             'code' => [
-                'prohibited_unless:file,null,',
-                'required_without:file',
+                'nullable',
                 'string',
             ],
         ]);
@@ -133,7 +132,7 @@ class ProblemController extends Controller
 
         $submission = ProblemSubmission::create([
             'problem_id' => $problem->id,
-            'user_id' => auth()->user()->id,
+            'user_id' => Auth::user()->id,
             'score' => 0,
         ]);
 
