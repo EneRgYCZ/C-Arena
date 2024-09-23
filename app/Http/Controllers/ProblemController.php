@@ -35,9 +35,9 @@ class ProblemController extends Controller
             'problems' => $problems,
         ])->table(function (Table $table) {
             $table
-                ->addColumn(new Column('id', 'Id', hidden: true, sortable: true))
+                ->addColumn(new Column('id', 'Id', sortable: true))
                 ->addColumn(new Column('name', 'Name', sortable: true))
-                ->addColumn(new Column('description', 'Description', sortable: true))
+                ->addColumn(new Column('description', 'Description'))
                 ->addSearchInput(new SearchInput('name', 'Name', shown: true))
                 ->addSearchInput(new SearchInput('description', 'Description'));
         });
