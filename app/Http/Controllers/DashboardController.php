@@ -12,47 +12,25 @@ class DashboardController extends Controller
 {
     public function index()
     {
+        $userId = Auth::user()->id;
+
+        $solvedProblems = function ($start, $end) use ($userId) {
+            return ProblemSubmission::where('user_id', $userId)
+                ->where('score', 100)
+                ->whereBetween('created_at', [$start, $end])
+                ->distinct('problem_id')
+                ->count('problem_id');
+        };
+
         return Inertia::render('Dashboard', [
-            'solvedProblemsToday' => ProblemSubmission::where('user_id', Auth::user()->id)
-                ->where('score', 100)
-                ->whereDate('created_at', Carbon::today())
-                ->distinct('problem_id')
-                ->count('problem_id'),
-            'solvedProblemsTodayComparison' => ProblemSubmission::where('user_id', Auth::user()->id)
-                ->where('score', 100)
-                ->whereDate('created_at', Carbon::yesterday())
-                ->distinct('problem_id')
-                ->count('problem_id'),
-            'solvedProblemsLast7Days' => ProblemSubmission::where('user_id', Auth::user()->id)
-                ->where('score', 100)
-                ->whereBetween('created_at', [Carbon::now()->subDays(7), Carbon::now()])
-                ->distinct('problem_id')
-                ->count('problem_id'),
-            'solvedProblemsLast7DaysComparison' => ProblemSubmission::where('user_id', Auth::user()->id)
-                ->where('score', 100)
-                ->whereBetween('created_at', [Carbon::now()->subDays(14), Carbon::now()->subDays(7)])
-                ->distinct('problem_id')
-                ->count('problem_id'),
-            'solvedProblemsLast14Days' => ProblemSubmission::where('user_id', Auth::user()->id)
-                ->where('score', 100)
-                ->whereBetween('created_at', [Carbon::now()->subDays(14), Carbon::now()])
-                ->distinct('problem_id')
-                ->count('problem_id'),
-            'solvedProblemsLast14DaysComparison' => ProblemSubmission::where('user_id', Auth::user()->id)
-                ->where('score', 100)
-                ->whereBetween('created_at', [Carbon::now()->subDays(28), Carbon::now()->subDays(14)])
-                ->distinct('problem_id')
-                ->count('problem_id'),
-            'solvedProblemsLast30Days' => ProblemSubmission::where('user_id', Auth::user()->id)
-                ->where('score', 100)
-                ->whereBetween('created_at', [Carbon::now()->subDays(30), Carbon::now()])
-                ->distinct('problem_id')
-                ->count('problem_id'),
-            'solvedProblemsLast30DaysComparison' => ProblemSubmission::where('user_id', Auth::user()->id)
-                ->where('score', 100)
-                ->whereBetween('created_at', [Carbon::now()->subDays(60), Carbon::now()->subDays(30)])
-                ->distinct('problem_id')
-                ->count('problem_id'),
+            'solvedProblemsToday' => $solvedProblems(Carbon::today(), Carbon::now()),
+            'solvedProblemsTodayComparison' => $solvedProblems(Carbon::yesterday(), Carbon::yesterday()->endOfDay()),
+            'solvedProblemsLast7Days' => $solvedProblems(Carbon::now()->subDays(7), Carbon::now()),
+            'solvedProblemsLast7DaysComparison' => $solvedProblems(Carbon::now()->subDays(14), Carbon::now()->subDays(7)),
+            'solvedProblemsLast14Days' => $solvedProblems(Carbon::now()->subDays(14), Carbon::now()),
+            'solvedProblemsLast14DaysComparison' => $solvedProblems(Carbon::now()->subDays(28), Carbon::now()->subDays(14)),
+            'solvedProblemsLast30Days' => $solvedProblems(Carbon::now()->subDays(30), Carbon::now()),
+            'solvedProblemsLast30DaysComparison' => $solvedProblems(Carbon::now()->subDays(60), Carbon::now()->subDays(30)),
             'leaderboard' => DB::table('users')
                 ->leftJoin('problem_submissions', function ($join) {
                     $join->on('users.id', '=', 'problem_submissions.user_id')
