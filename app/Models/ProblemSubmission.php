@@ -17,4 +17,9 @@ class ProblemSubmission extends Model
     {
         return $this->belongsTo(Problem::class);
     }
+
+    public function user(): BelongsTo
+    {
+        return $this->belongsTo(User::class);
+    }
 }

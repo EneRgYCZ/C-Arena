@@ -25,6 +25,8 @@ class DatabaseSeeder extends Seeder
             'email' => 'test1@example.com',
         ]);
 
+        User::factory()->count(25)->create();
+
         $this->call(ProblemSeeder::class);
     }
 }

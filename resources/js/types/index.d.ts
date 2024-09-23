@@ -112,3 +112,8 @@ export interface Submission {
     updated_at: string;
     created_at: string;
 }
+
+export interface LeaderboardElement {
+    user: User;
+    total: number;
+}
